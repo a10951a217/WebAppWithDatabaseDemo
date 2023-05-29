@@ -5,29 +5,29 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  project: '**/*.csproj' # change this to your csproj file
+  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
-- task: DotNetCoreCLI@2
-  displayName: 'restore NuGet packages'
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
   inputs:
     command: 'restore'
-    projects: '**/*.csproj'
+    restoreSolution: '$(project)'
+    feedsToUse: 'select'
+    includeNuGetOrg: true    
 
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
-  arguments: '-p:ExcludeProjects="**/*selenium*.csproj"'
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish'
+- task: VSBuild@1
   inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
+    solution: '$(project)' # change this to project
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(build.artifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
-  displayName: 'publish artifacts'
