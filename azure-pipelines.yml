@@ -14,8 +14,9 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    command: 'custom'
-    arguments: 'restore ''**/*.csproj'' -exclude ''*selenium*'''
+    command: 'restore'
+    restoreSolution: '**/WebApp.csproj'
+    feedsToUse: 'select'
 
 - task: VSBuild@1
   inputs:
