@@ -4,29 +4,28 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-variables:
-  project: '**/*.csproj' # change this to your csproj file
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-
 steps:
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.0.x'
+- task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    restoreSolution: '**/WebApp.csproj'
+    projects: '**/WebApp.csproj'
     feedsToUse: 'select'
-
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
   inputs:
-    solution: '**/WebApp.csproj'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
+    command: 'build'
+    projects: '**/WebApp.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(build.artifactStagingDirectory)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
