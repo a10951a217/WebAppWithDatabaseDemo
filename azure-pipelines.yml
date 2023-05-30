@@ -12,12 +12,12 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    projects: '**/WebApp.csproj'
+    projects: 'WebAppWithDatabase.sln'
     feedsToUse: 'select'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: '**/WebApp.csproj'
+    projects: 'WebAppWithDatabase.sln'
     arguments: '--configuration $(BuildConfiguration)'
 - task: DotNetCoreCLI@2
   inputs:
