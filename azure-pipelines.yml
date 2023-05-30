@@ -4,26 +4,24 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
 steps:
-- task: UseDotNet@2
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
   inputs:
-    packageType: 'sdk'
-    version: '6.0.x'
-- task: DotNetCoreCLI@2
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
   inputs:
-    command: 'restore'
-    projects: 'WebAppWithDatabase.sln'
-    feedsToUse: 'select'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    projects: 'WebAppWithDatabase.sln'
-    arguments: '--configuration $(BuildConfiguration)'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
